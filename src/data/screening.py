@@ -129,8 +129,8 @@ def screening_report(
     mom_df  = sector_momentum(data, sector_map)
 
     report = vol_df.join(dec_df).join(mom_df)
-    report.insert(0, "Name",   pd.Series(stock_names))
-    report.insert(1, "Sector", pd.Series(sector_map))
+    report["Name"] = report.index.map(stock_names)
+    report["Sector"] = report.index.map(sector_map)
     report = report.sort_values("6M_CumReturn", ascending=False)
 
     TABLES_DIR.mkdir(parents=True, exist_ok=True)
