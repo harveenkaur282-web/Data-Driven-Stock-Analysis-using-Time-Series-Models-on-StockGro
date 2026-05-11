@@ -6,9 +6,9 @@ scikit-learn
 statsmodels
 yfinance
 prophet
-tensorflow
 torch
 arch
 streamlit
 jupyter
 plotly
+pmdarima
