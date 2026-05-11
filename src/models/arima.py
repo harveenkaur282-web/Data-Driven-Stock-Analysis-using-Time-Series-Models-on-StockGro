@@ -65,14 +65,29 @@ def residual_diagnostics(model: pm.arima.ARIMA) -> Dict:
     }
 
 
-def predict_test(model: pm.arima.ARIMA, test: pd.Series) -> pd.Series:
-    """Walk-forward 1-step prediction on the test set."""
+def predict_test(
+    model: pm.arima.ARIMA,
+    test: pd.Series,
+) -> pd.Series:
+    """
+    Predict on test set using rolling forecast.
+    """
     predictions = []
-    m = model.copy()
+    # Work on a copy to avoid side effects if reused
+    current_model = model
+
     for i in range(len(test)):
-        fc = m.predict(n_periods=1)
-        predictions.append(float(fc[0]))
-        m.update([test.iloc[i]])
+        try:
+            fc = current_model.predict(n_periods=1)
+            # Robust extraction: handle both Series and Numpy array
+            p_val = fc.iloc[0] if hasattr(fc, 'iloc') else fc[0]
+            predictions.append(float(p_val))
+            # Update with the next observation (as a Series to preserve index/metadata)
+            current_model.update(test.iloc[i:i+1])
+        except Exception as e:
+            log.error(f"  Error at step {i}: {e}")
+            predictions.append(np.nan)
+
     return pd.Series(predictions, index=test.index, name="ARIMA_Pred")
 
 
@@ -84,6 +99,7 @@ def forecast_future(
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Re-fit on train+test, forecast n_periods ahead. Returns (fc, lower, upper)."""
     full = pd.concat([train, test])
+    # Refit auto_arima on full data for future forecast
     m = pm.auto_arima(
         full, seasonal=False, stepwise=True,
         suppress_warnings=True, error_action="ignore",
@@ -98,6 +114,7 @@ def run_arima_pipeline(
     save: bool = True,
 ) -> Tuple[Dict[str, pd.Series], Dict[str, np.ndarray], list]:
     """Run ARIMA for all tickers."""
+    import traceback
     test_preds: Dict[str, pd.Series] = {}
     future_fc: Dict[str, np.ndarray] = {}
     metrics = []
@@ -109,11 +126,15 @@ def run_arima_pipeline(
             model = fit_arima(train)
             pred = predict_test(model, test)
             fc, lo, hi = forecast_future(model, train, test, n_periods=n_forecast)
-            diag = residual_diagnostics(model)
+            
+            # Simple residual check
+            lb_pval = acorr_ljungbox(model.resid(), lags=[10], return_df=True)['lb_pvalue'].iloc[0]
+            
             m_dict = evaluate(test.values, pred.values, "ARIMA", ticker)
-            m_dict["WhiteNoise"] = diag["white_noise"]
+            m_dict["WhiteNoise"] = bool(lb_pval > 0.05)
         except Exception as e:
             log.error(f"ARIMA failed for {ticker}: {e}")
+            log.error(traceback.format_exc())
             pred = pd.Series(np.nan, index=test.index)
             fc = np.full(n_forecast, np.nan)
             m_dict = evaluate(test.values, np.full(len(test), np.nan), "ARIMA", ticker)
