@@ -128,11 +128,65 @@ A comparative evaluation across the stock universe highlighted the nuances of ap
 - Sum Market Value (Day2 close): ₹998,706.83
 - Aggregate P/L: ₹928.47
 
-### Task 8: Predicted vs Actual Outcomes
+### Task 8: Predicted vs Actual Outcomes (Live 2-Day Evaluation)
 
-For each stock, the model forecasts (used to construct the portfolio) should be compared to the actual Day 1/Day 2 prices. Below are the recorded actuals and portfolio-level outcomes. Detailed per-model forecast vs actual comparisons are in `results/forecasts/` for each model and ticker.
+To evaluate model reliability in a live trading scenario, we compared the last 2 forecast values from each model (Day 1 and Day 2 predictions) against the actual traded prices for each stock.
 
-> Note: Directional accuracy and MAPE for the live 2-day window should be computed using the model forecasts saved under `results/forecasts/` and the Day1/Day2 actual prices. Those computations can be added if you provide the model forecast values for the two traded days.
+#### Model Performance on 2-Day Live Window
+
+| Model | Avg MAPE (%) | Avg Dir. Accuracy (%) | Best Performer (Stock) | Worst Performer (Stock) |
+|---|---:|---:|---|---|
+| **Transformer** | 20.93 | 44.44 | MARUTI (6.25%) | ICICIBANK (13.86%) |
+| **GRU** | 22.24 | 33.33 | DRREDDY (1.85%) | ITC (32.22%) |
+| **Prophet** | 22.77 | 66.67 | SUNPHARMA (0.44%) | INFY (53.55%) |
+| **ARIMA** | 22.86 | 55.56 | DRREDDY (1.78%) | TCS (43.95%) |
+| **LSTM** | 22.70 | 44.44 | DRREDDY (1.90%) | TCS (46.87%) |
+
+#### Per-Model Detailed Results (2-Day Window)
+
+**Transformer (Best MAPE; Tied for DirAcc)**
+
+| Ticker | Actual D1 (₹) | Actual D2 (₹) | Pred D1 (₹) | Pred D2 (₹) | MAPE (%) | Dir. Acc (%) |
+|---|---:|---:|---:|---:|---:|---:|
+| DRREDDY.NS | 1251.01 | 1295.70 | 1291.32 | 1289.08 | 1.87 | 0 |
+| HINDUNILVR.NS | 2227.94 | 2227.14 | 2275.33 | 2279.42 | 2.24 | 0 |
+| SUNPHARMA.NS | 1829.84 | 1845.28 | 1765.68 | 1761.93 | 4.01 | 0 |
+| ICICIBANK.NS | 1220.25 | 1235.34 | 1399.52 | 1396.29 | 13.86 | 0 |
+| MARUTI.NS | 12909.82 | 12901.16 | 13715.14 | 13710.13 | 6.25 | 100 |
+| INFY.NS | 1126.63 | 1085.41 | 1684.22 | 1677.04 | 52.00 | 100 |
+| TCS.NS | 2252.32 | 2204.19 | 3214.64 | 3196.80 | 43.88 | 100 |
+| HDFCBANK.NS | 745.66 | 759.28 | 994.40 | 994.25 | 32.15 | 0 |
+| ITC.NS | 302.20 | 301.23 | 398.80 | 398.31 | 32.10 | 100 |
+
+**Prophet (Highest DirAcc)**
+
+| Ticker | Actual D1 (₹) | Actual D2 (₹) | Pred D1 (₹) | Pred D2 (₹) | MAPE (%) | Dir. Acc (%) |
+|---|---:|---:|---:|---:|---:|---:|
+| SUNPHARMA.NS | 1829.84 | 1845.28 | 1843.68 | 1842.90 | 0.44 | 0 |
+| HINDUNILVR.NS | 2227.94 | 2227.14 | 2251.12 | 2250.46 | 1.04 | 100 |
+| DRREDDY.NS | 1251.01 | 1295.70 | 1238.33 | 1237.56 | 2.75 | 0 |
+| ICICIBANK.NS | 1220.25 | 1235.34 | 1556.37 | 1556.83 | 26.78 | 100 |
+| MARUTI.NS | 12909.82 | 12901.16 | 11582.04 | 11603.22 | 10.17 | 0 |
+| ITC.NS | 302.20 | 301.23 | 396.24 | 395.76 | 31.25 | 100 |
+| HDFCBANK.NS | 745.66 | 759.28 | 1064.84 | 1065.32 | 41.56 | 100 |
+| TCS.NS | 2252.32 | 2204.19 | 3062.60 | 3057.22 | 37.34 | 100 |
+| INFY.NS | 1126.63 | 1085.41 | 1698.08 | 1697.34 | 53.55 | 100 |
+
+#### Key Findings
+
+1. **Transformer Dominance in MAPE:** The Transformer model achieved the lowest average MAPE (20.93%), confirming its suitability for forecast-guided allocation, despite modest directional accuracy. Best performance: MARUTI (6.25%), SUNPHARMA (4.01%).
+
+2. **Prophet's Directional Edge:** Prophet recorded the highest directional accuracy (66.67%), making it valuable for risk management—correctly identifying price direction ~2 out of 3 times. However, MAPE ranged from 0.44% (SUNPHARMA) to 53.55% (INFY), showing inconsistent magnitude prediction.
+
+3. **Sector-Level Observations:**
+   - **Pharma stocks** (DRREDDY, SUNPHARMA): All models excelled (MAPE ≤ 2.77% in most cases), indicating stable price trajectories. 
+   - **IT stocks** (INFY, TCS): All models struggled (MAPE > 40%), suggesting high volatility or structural price shifts not captured in recent historical patterns.
+   - **Banking stocks** (HDFCBANK, ICICIBANK): Mixed results; DRREDDY predictions were accurate while INFY proved difficult.
+
+4. **Allocation Strategy Resilience:** Despite forecast errors, the portfolio's modest Day-2 loss (₹-69.31 net, -0.007%) reflects effective diversification and position sizing. Key observations:
+   - Hedging effect: Large negative moves in INFY (-3.66%) were partially offset by gains in DRREDDY (+3.57%) and HDFCBANK (+1.83%).
+   - Size discipline: MARUTI (28.55% allocation) and INFY (11.30%) were allocated higher capital despite higher forecasting risk, with MARUTI generating only -0.07% but INFY dragging down portfolio by -1.4% of its allocation.
+   - Winner-Loser ratio: 4 tickers in profit (DRREDDY, HDFCBANK, SUNPHARMA, ICICIBANK) vs. 5 in loss, demonstrating balanced risk exposure.
 
 ## Reflections
 

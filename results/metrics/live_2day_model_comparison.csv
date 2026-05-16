@@ -1,0 +1,6 @@
+Model,Avg_MAPE_%,Avg_DirAcc_%,Tickers
+ARIMA,22.86,55.56,9
+Prophet,22.77,66.67,9
+LSTM,22.7,44.44,9
+GRU,22.24,33.33,9
+Transformer,20.93,44.44,9
