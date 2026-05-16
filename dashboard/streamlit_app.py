@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+import yfinance as yf
 from pathlib import Path
 import sys
 import os
@@ -115,6 +116,21 @@ def main():
                 "PnL": "₹{:.2f}",
                 "ROI%": "{:.2f}%"
             }).background_gradient(subset=["PnL", "ROI%"], cmap="RdYlGn", vmin=-5, vmax=5), use_container_width=True)
+
+            # Load Day2 actuals from deliverables (if present) and show comparison
+            actuals_path = ROOT / "deliverables" / "task7_stockgro" / "actuals.csv"
+            if actuals_path.exists():
+                st.markdown("---")
+                st.subheader("Day 2 Actuals (StockGro)")
+                actuals = pd.read_csv(actuals_path)
+                st.dataframe(actuals.style.format({
+                    "Avg_Price": "₹{:.2f}",
+                    "Market_Price": "₹{:.2f}",
+                    "Purchase_Value": "₹{:.2f}",
+                    "Market_Value": "₹{:.2f}",
+                    "P_L": "₹{:.2f}",
+                    "Pct": "{:.2f}%"
+                }), use_container_width=True)
 
             st.markdown("---")
             st.subheader("🔍 Gap & Sentiment Analysis")
