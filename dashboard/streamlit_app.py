@@ -7,7 +7,6 @@ from pathlib import Path
 import sys
 import os
 
-# Set page config for premium feel
 st.set_page_config(
     page_title="TSA 2026 | Portfolio Analytics",
     page_icon="📈",
@@ -15,7 +14,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for Glassmorphism and Premium UI
 st.markdown("""
     <style>
     .main {
@@ -46,7 +44,6 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# Path setup
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(ROOT))
 
@@ -85,7 +82,6 @@ def main():
         with col3:
             st.metric("Total Capital", "₹10,00,000")
 
-        # Portfolio Distribution Chart
         alloc_df = load_allocation_data()
         if alloc_df is not None:
             st.subheader("Recommended Portfolio Structure")
@@ -105,8 +101,7 @@ def main():
         else:
             pnl = current - invested
             pnl_pct = (pnl / invested) * 100
-            
-            # Key Metrics
+
             m1, m2, m3 = st.columns(3)
             m1.metric("Total Invested", f"₹{invested:,.2f}")
             m2.metric("Current Value", f"₹{current:,.2f}", f"{pnl:,.2f}")
@@ -120,8 +115,7 @@ def main():
                 "PnL": "₹{:.2f}",
                 "ROI%": "{:.2f}%"
             }).background_gradient(subset=["PnL", "ROI%"], cmap="RdYlGn", vmin=-5, vmax=5), use_container_width=True)
-            
-            # Gap Analysis
+
             st.markdown("---")
             st.subheader("🔍 Gap & Sentiment Analysis")
             st.markdown("Understanding the difference between the **Overnight Gap** and **Intraday Movement**.")
@@ -177,7 +171,6 @@ def main():
         st.info("Select a stock to view detailed forecasts from ARIMA, Prophet, and LSTM.")
         ticker = st.selectbox("Select Ticker", list(STOCK_UNIVERSE.keys()))
         
-        # Placeholder for forecast charts
         st.image("https://via.placeholder.com/800x400.png?text=Interactive+Forecast+Chart+Coming+Soon", use_container_width=True)
 
 if __name__ == "__main__":
