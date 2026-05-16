@@ -17,15 +17,15 @@ To ensure robust portfolio diversification, 9 stocks were selected across 5 majo
 
 | Ticker | Sector | Mean AnnVol | Trend Strength | Trend Direction | 6M CumReturn |
 |---|---|---|---|---|---|
-| MARUTI.NS | Auto | 0.2209 | 0.8845 | Upward | 35.70% |
-| SUNPHARMA.NS | Pharma | 0.2012 | 0.9750 | Upward | 2.99% |
-| INFY.NS | IT | 0.2329 | 0.5649 | Upward | 2.79% |
-| HINDUNILVR.NS | FMCG | 0.1947 | 0.4831 | Upward | 0.59% |
-| HDFCBANK.NS | Banking | 0.2015 | 0.8874 | Upward | -0.74% |
-| DRREDDY.NS | Pharma | 0.2126 | 0.9264 | Upward | -0.74% |
-| ITC.NS | FMCG | 0.1911 | 0.9697 | Upward | -3.81% |
-| TCS.NS | IT | 0.2029 | 0.7349 | Upward | -5.55% |
-| ICICIBANK.NS | Banking | 0.2052 | 0.9672 | Upward | -6.43% |
+| MARUTI.NS | Auto | 0.2209 | 0.9043 | Upward | 35.70% |
+| SUNPHARMA.NS | Pharma | 0.2012 | 0.9246 | Upward | 2.99% |
+| INFY.NS | IT | 0.2329 | 0.3261 | Upward | 2.79% |
+| HINDUNILVR.NS | FMCG | 0.1947 | 0.4486 | Downward | 0.59% |
+| HDFCBANK.NS | Banking | 0.2015 | 0.8459 | Upward | -0.74% |
+| DRREDDY.NS | Pharma | 0.2126 | 0.8494 | Upward | -0.74% |
+| ITC.NS | FMCG | 0.1911 | 0.9426 | Downward | -3.81% |
+| TCS.NS | IT | 0.2029 | 0.4891 | Downward | -5.55% |
+| ICICIBANK.NS | Banking | 0.2052 | 0.9784 | Upward | -6.43% |
 
 ## Data Preprocessing Steps (Task 2)
 1. **Data Sourcing:** Historical daily stock data fetched via the `yfinance` library spanning Jan 1, 2021, to Dec 31, 2025.
