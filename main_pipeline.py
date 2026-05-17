@@ -1,12 +1,3 @@
-"""
-main_pipeline.py
-----------------
-End-to-end orchestrator for all capstone tasks.
-
-Usage:
-    python main_pipeline.py                   # run everything
-    python main_pipeline.py --task 1 2 3      # run specific tasks
-"""
 
 import argparse
 import logging
@@ -16,7 +7,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-# Ensure project root is on path
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
@@ -25,9 +15,6 @@ logging.basicConfig(
     format="%(levelname)s | %(name)s | %(message)s",
 )
 log = logging.getLogger("pipeline")
-
-
-# ── Task 1: Stock Selection & Screening ──────────────────────────────────────
 
 def task1_screening():
     log.info("=" * 60)
@@ -46,9 +33,6 @@ def task1_screening():
     print("\n" + report.to_string() + "\n")
     return data
 
-
-# ── Task 2: Data Preprocessing ──────────────────────────────────────────────
-
 def task2_preprocess(data=None):
     log.info("=" * 60)
     log.info("TASK 2: Data Preprocessing")
@@ -62,7 +46,6 @@ def task2_preprocess(data=None):
 
     processed = preprocess_all(data)
 
-    # Print stationarity report
     stat_report = stationarity_report(data)
     print("\nStationarity Report:")
     print(stat_report.to_string() + "\n")
@@ -72,9 +55,6 @@ def task2_preprocess(data=None):
 
     return processed
 
-
-# ── Task 3: Time Series Forecasting ─────────────────────────────────────────
-
 def task3_forecasting(processed):
     log.info("=" * 60)
     log.info("TASK 3: Time Series Forecasting")
@@ -82,37 +62,31 @@ def task3_forecasting(processed):
 
     all_metrics = []
 
-    # ARIMA
     log.info("─── ARIMA ───")
     from src.models.arima import run_arima_pipeline
     arima_preds, arima_fc, arima_met = run_arima_pipeline(processed)
     all_metrics.extend(arima_met)
 
-    # Prophet
     log.info("─── Prophet ───")
     from src.models.prophet_model import run_prophet_pipeline
     prophet_preds, prophet_fc, prophet_met = run_prophet_pipeline(processed)
     all_metrics.extend(prophet_met)
 
-    # LSTM
     log.info("─── LSTM ───")
     from src.models.lstm import run_lstm_pipeline
     lstm_preds, lstm_fc, lstm_met = run_lstm_pipeline(processed, epochs=30)
     all_metrics.extend(lstm_met)
 
-    # GRU
     log.info("─── GRU ───")
     from src.models.lstm import run_gru_pipeline
     gru_preds, gru_fc, gru_met = run_gru_pipeline(processed, epochs=30)
     all_metrics.extend(gru_met)
 
-    # Transformer
     log.info("─── Transformer ───")
     from src.models.transformer import run_transformer_pipeline
     trans_preds, trans_fc, trans_met = run_transformer_pipeline(processed, epochs=30)
     all_metrics.extend(trans_met)
 
-    # Save combined metrics
     metrics_df = pd.DataFrame(all_metrics)
     out_dir = ROOT / "results" / "metrics"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -127,9 +101,6 @@ def task3_forecasting(processed):
         "gru":         {"preds": gru_preds,     "fc": gru_fc},
         "transformer": {"preds": trans_preds,   "fc": trans_fc},
     }, metrics_df
-
-
-# ── Task 4: Volatility & Trend Analysis ─────────────────────────────────────
 
 def task4_analysis(data=None):
     log.info("=" * 60)
@@ -159,9 +130,6 @@ def task4_analysis(data=None):
 
     return vol_df, trend_df, corr_df, corr_w
 
-
-# ── Task 5: Portfolio Construction ───────────────────────────────────────────
-
 def task5_portfolio(model_results, vol_df, corr_w, data=None):
     log.info("=" * 60)
     log.info("TASK 5: Portfolio Construction & Allocation")
@@ -174,20 +142,16 @@ def task5_portfolio(model_results, vol_df, corr_w, data=None):
     if data is None:
         data = load_all_raw()
 
-    # Use the best model's forecasts (or ARIMA as default)
     best_model = "arima"
     future_fc  = model_results[best_model]["fc"]
 
-    # Current prices = last available close
     current_prices = {}
     for ticker, df in data.items():
         close = df["Close"].squeeze().dropna()
         current_prices[ticker] = float(close.iloc[-1])
 
-    # Volatility estimates from GARCH
     vol_estimates = vol_df["GARCH_FcstVol"].to_dict()
 
-    # Sector momentum
     sec_mom = sector_momentum(data, SECTOR_MAP)
 
     tickers = list(STOCK_UNIVERSE.keys())
@@ -208,9 +172,6 @@ def task5_portfolio(model_results, vol_df, corr_w, data=None):
 
     return alloc
 
-
-# ── Task 6: Model Comparison ────────────────────────────────────────────────
-
 def task6_comparison(metrics_df):
     log.info("=" * 60)
     log.info("TASK 6: Model Comparison")
@@ -219,7 +180,6 @@ def task6_comparison(metrics_df):
     print("\n── Cross-Model Evaluation ──")
     print(metrics_df.to_string())
 
-    # Average across tickers per model
     avg = metrics_df.groupby("Model")[["RMSE", "MAPE", "DirAcc"]].mean().round(4)
     print("\n── Average Metrics by Model ──")
     print(avg.to_string())
@@ -228,8 +188,6 @@ def task6_comparison(metrics_df):
     log.info(f"\nBest model by average MAPE: {best}")
     return best
 
-
-# ── Main ─────────────────────────────────────────────────────────────────────
 
 def main():
     parser = argparse.ArgumentParser(description="TSA 2026 Pipeline")
@@ -255,10 +213,9 @@ def main():
         if processed is None:
             processed = task2_preprocess(data)
         model_results, metrics_df = task3_forecasting(processed)
-        # Save metrics deliverable
+
         metrics_df.to_csv("deliverables/task3_forecasting/model_metrics_comparison.csv", index=False)
     else:
-        # Try to load existing results from disk for Task 5/6
         try:
             import pandas as pd
             metrics_path = Path("results/metrics/model_comparison.csv")

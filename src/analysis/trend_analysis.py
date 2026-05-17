@@ -1,11 +1,3 @@
-"""
-trend_analysis.py
------------------
-Task 4 – Trend Analysis:
-- STL Decomposition
-- Trend Strength
-- Output to deliverables/task4_analysis/
-"""
 
 import logging
 from pathlib import Path
