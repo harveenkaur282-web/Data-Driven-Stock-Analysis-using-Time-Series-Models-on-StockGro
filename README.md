@@ -251,6 +251,8 @@ flowchart TD
     I --> J[Manual StockGro execution and validation]
 ```
 
+<img width="1440" height="1960" alt="image" src="https://github.com/user-attachments/assets/926355ff-d1ed-46d1-a471-6150a39503f2" />
+
 ## Notes on Code and Extension
 
 - `main_pipeline.py` is the main orchestration script. 
