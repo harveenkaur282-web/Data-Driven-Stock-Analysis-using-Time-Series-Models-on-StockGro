@@ -12,6 +12,9 @@ The code covers the following core tasks:
 - Portfolio construction using forecast guidance, volatility sizing, correlation diversification, and sector momentum
 - Comparison of model performance using RMSE, MAPE, and directional accuracy
 
+## DEPLOYED VISUAL DASHBOARD: 
+https://data-driven-stock-analysis-using-time.onrender.com/
+
 ## Repository Structure
 
 - `main_pipeline.py`: Orchestrates the main project workflow. It runs tasks 1 through 6 and saves deliverables.
