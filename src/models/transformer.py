@@ -1,9 +1,3 @@
-"""
-transformer.py
---------------
-Task 3: Transformer-based time series forecasting using PyTorch.
-"""
-
 from __future__ import annotations
 import logging
 import math

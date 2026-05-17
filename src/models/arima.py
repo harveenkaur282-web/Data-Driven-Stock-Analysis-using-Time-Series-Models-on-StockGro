@@ -1,12 +1,6 @@
-"""
-arima.py
---------
-Task 3: ARIMA / SARIMA forecasting.
-- Uses pmdarima.auto_arima for AIC/BIC-guided order selection
-- Validates residuals (Ljung-Box)
-- Produces test-period predictions + N-step ahead forecasts
-"""
-
+#uses pmdarima.auto_arima for AIC/BIC-guided order selection
+#validates residuals (Ljung-Box)
+#Produces test-period predicitons and n-step ahead forecasts
 from __future__ import annotations
 import logging
 import warnings
@@ -35,7 +29,6 @@ def fit_arima(
     max_p: int = 5,
     max_q: int = 5,
 ) -> pm.arima.ARIMA:
-    """Fit auto_arima on the training series."""
     log.info(f"  Fitting auto_arima (seasonal={seasonal}, m={m}) …")
     model = pm.auto_arima(
         train,
@@ -51,9 +44,7 @@ def fit_arima(
     log.info(f"  Best order: {model.order}  seasonal_order: {model.seasonal_order}")
     return model
 
-
 def residual_diagnostics(model: pm.arima.ARIMA) -> Dict:
-    """Run Ljung-Box test on residuals."""
     resid = pd.Series(model.resid())
     lb = acorr_ljungbox(resid, lags=[10, 20], return_df=True)
     return {
@@ -64,14 +55,10 @@ def residual_diagnostics(model: pm.arima.ARIMA) -> Dict:
         "white_noise": bool(lb["lb_pvalue"].min() > 0.05),
     }
 
-
 def predict_test(
     model: pm.arima.ARIMA,
     test: pd.Series,
 ) -> pd.Series:
-    """
-    Predict on test set using rolling forecast.
-    """
     predictions = []
     # Work on a copy to avoid side effects if reused
     current_model = model
@@ -106,7 +93,7 @@ def forecast_future(
     )
     fc, conf = m.predict(n_periods=n_periods, return_conf_int=True)
     return fc, conf[:, 0], conf[:, 1]
-
+#this function can be called then in notebooks to get the forecast on next days (outside of Jan 2021-dec 2025)
 
 def run_arima_pipeline(
     processed: Dict[str, Dict],
@@ -126,8 +113,6 @@ def run_arima_pipeline(
             model = fit_arima(train)
             pred = predict_test(model, test)
             fc, lo, hi = forecast_future(model, train, test, n_periods=n_forecast)
-            
-            # Simple residual check
             lb_pval = acorr_ljungbox(model.resid(), lags=[10], return_df=True)['lb_pvalue'].iloc[0]
             
             m_dict = evaluate(test.values, pred.values, "ARIMA", ticker)

@@ -16,7 +16,7 @@ TEST_START = "2025-07-01"
 TEST_END   = "2025-12-31"
 
 def handle_missing(df: pd.DataFrame) -> pd.DataFrame:
-    """Forward-fill then backward-fill; drop any remaining NaN rows."""
+#forward-fill then backward-fill; drop any remaining NaN rows.
     df = df.ffill().bfill()
     n_dropped = df.isna().any(axis=1).sum()
     if n_dropped:
@@ -34,7 +34,6 @@ def adf_test(series: pd.Series, signif: float = 0.05) -> Dict:
         "is_stationary": result[1] < signif,
     }
 
-
 def make_stationary(series: pd.Series, max_diff: int = 2) -> Tuple[pd.Series, int]:
     d = 0
     s = series.copy()
@@ -50,7 +49,6 @@ def make_stationary(series: pd.Series, max_diff: int = 2) -> Tuple[pd.Series, in
 
 
 def stationarity_report(data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
-    """Run ADF on Close prices and report d-order needed for each ticker."""
     rows = []
     for ticker, df in data.items():
         price = df["Close"].squeeze().dropna()
@@ -65,10 +63,8 @@ def stationarity_report(data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
         })
     return pd.DataFrame(rows).set_index("Ticker")
 
-
 def compute_log_returns(prices: pd.Series) -> pd.Series:
     return np.log(prices / prices.shift(1)).dropna().rename("LogReturn")
-
 
 def train_test_split_ts(
     series: pd.Series,
@@ -79,7 +75,6 @@ def train_test_split_ts(
     train = series.loc[:train_end]
     test  = series.loc[test_start:test_end]
     return train, test
-
 
 def scale_series(
     train: pd.Series,
@@ -125,7 +120,6 @@ def preprocess_all(
 
     log.info("Preprocessing complete.")
     return out
-
 
 if __name__ == "__main__":
     import sys, os

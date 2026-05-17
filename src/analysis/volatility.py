@@ -1,12 +1,3 @@
-"""
-volatility.py
--------------
-Task 4 – Volatility Estimation:
-- GARCH(1,1)
-- Rolling Volatility
-- Output to deliverables/task4_analysis/
-"""
-
 import logging
 from pathlib import Path
 from typing import Dict, Tuple, Optional
@@ -16,7 +7,6 @@ from arch import arch_model
 
 log = logging.getLogger(__name__)
 
-# Output Path
 OUT_DIR = Path(__file__).resolve().parents[2] / "deliverables" / "task4_analysis"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -27,7 +17,6 @@ def rolling_vol(ret: pd.Series, window: int = 30) -> pd.Series:
     return ret.rolling(window=window).std() * np.sqrt(252)
 
 def fit_garch(ret: pd.Series) -> Tuple[float, object]:
-    """Fit GARCH(1,1) and return forecast."""
     try:
         model = arch_model(ret, vol='Garch', p=1, q=1, rescale=False)
         res = model.fit(disp='off')
@@ -40,7 +29,7 @@ def fit_garch(ret: pd.Series) -> Tuple[float, object]:
         return np.nan, None
 
 def volatility_summary(raw_data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
-    """Computes volatility metrics for all stocks."""
+#computes volatility metrics for all the stocks 
     results = []
     for ticker, df in raw_data.items():
         prices = df['Close'].squeeze()
@@ -48,7 +37,7 @@ def volatility_summary(raw_data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
         
         rv = rolling_vol(rets).iloc[-1]
         gv, _ = fit_garch(rets)
-        
+    
         results.append({
             "Ticker": ticker,
             "Rolling_Vol_Ann": round(rv, 4),
@@ -57,8 +46,6 @@ def volatility_summary(raw_data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
         })
     
     vol_df = pd.DataFrame(results).set_index("Ticker")
-    
-    # Save Deliverable
     vol_df.to_csv(OUT_DIR / "volatility_metrics.csv")
     log.info(f"Volatility summary saved to {OUT_DIR / 'volatility_metrics.csv'}")
     

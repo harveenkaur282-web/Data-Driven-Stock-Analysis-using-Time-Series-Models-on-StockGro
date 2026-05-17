@@ -1,9 +1,3 @@
-"""
-lstm.py
--------
-Task 3: LSTM & GRU stock price forecasting using PyTorch.
-"""
-
 from __future__ import annotations
 import logging
 from pathlib import Path
@@ -24,19 +18,13 @@ FORECASTS_DIR.mkdir(parents=True, exist_ok=True)
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-
-# ── Dataset helpers ────────────────────────────────────────────────────────────
-
 def make_sequences(data: np.ndarray, seq_len: int = 60) -> Tuple[np.ndarray, np.ndarray]:
-    """Create (X, y) sequences from 1-D scaled array."""
+#creates (X,y) sequences from 1-D scaled array.
     X, y = [], []
     for i in range(seq_len, len(data)):
         X.append(data[i - seq_len: i])
         y.append(data[i])
     return np.array(X, dtype=np.float32), np.array(y, dtype=np.float32)
-
-
-# ── Model architectures ────────────────────────────────────────────────────────
 
 class _RNNBase(nn.Module):
     """Shared skeleton for LSTM and GRU."""
@@ -67,8 +55,6 @@ class GRUModel(_RNNBase):
         super().__init__(rnn_type="GRU", **kwargs)
 
 
-# ── Training ───────────────────────────────────────────────────────────────────
-
 def train_model(model: nn.Module, train_scaled: np.ndarray, seq_len: int = 60,
                 epochs: int = 30, batch_size: int = 32, lr: float = 1e-3) -> List[float]:
     model.to(DEVICE)
@@ -98,9 +84,6 @@ def train_model(model: nn.Module, train_scaled: np.ndarray, seq_len: int = 60,
         if (epoch + 1) % 10 == 0:
             log.info(f"    Epoch {epoch+1}/{epochs}  loss={losses[-1]:.6f}")
     return losses
-
-
-# ── Prediction ─────────────────────────────────────────────────────────────────
 
 def predict_test_rnn(model: nn.Module, train_scaled: np.ndarray, test_scaled: np.ndarray,
                      scaler, seq_len: int = 60) -> np.ndarray:
@@ -138,9 +121,6 @@ def forecast_future_rnn(model: nn.Module, train_scaled: np.ndarray, test_scaled:
             seed[-1] = p
 
     return scaler.inverse_transform(np.array(fc_sc).reshape(-1, 1)).flatten()
-
-
-# ── Pipeline ───────────────────────────────────────────────────────────────────
 
 def _run_rnn_pipeline(processed: Dict[str, Dict], rnn_type: str, seq_len: int = 60,
                       epochs: int = 30, hidden_size: int = 64, n_forecast: int = 5,

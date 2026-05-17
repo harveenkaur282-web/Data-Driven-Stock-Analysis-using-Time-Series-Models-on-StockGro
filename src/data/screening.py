@@ -12,23 +12,17 @@ from statsmodels.tsa.seasonal import seasonal_decompose
 
 log = logging.getLogger(__name__)
 
-FIGURES_DIR = Path(__file__).resolve().parents[2] / "reports" / "figures"
-TABLES_DIR  = Path(__file__).resolve().parents[2] / "reports" / "tables"
-
-
-# ── Rolling volatility ─────────────────────────────────────────────────────────
+FIGURES_DIR = Path(__file__).resolve().parents[2] / "deliverables" / "images"
+TABLES_DIR  = Path(__file__).resolve().parents[2] / "deliverables" / "tables"
 
 def rolling_volatility(prices: pd.Series, window: int = 30) -> pd.Series:
     """Annualised rolling std-dev of log returns."""
     log_ret = np.log(prices / prices.shift(1)).dropna()
     return log_ret.rolling(window).std() * np.sqrt(252)
 
-
 def volatility_summary(data: Dict[str, pd.DataFrame], window: int = 30) -> pd.DataFrame:
-    """
-    Returns a DataFrame with mean / max / recent annualised vol for each ticker.
-    Used to justify stock selection with 'interesting volatility profiles'.
-    """
+#Returns a DataFrame with mean / max / recent annualised vol for each ticker.
+#Used to justify stock selection with 'interesting volatility profiles. 
     rows = []
     for ticker, df in data.items():
         price = df["Close"].squeeze()
@@ -41,25 +35,19 @@ def volatility_summary(data: Dict[str, pd.DataFrame], window: int = 30) -> pd.Da
         })
     return pd.DataFrame(rows).set_index("Ticker")
 
-
-# ── Seasonal decomposition ─────────────────────────────────────────────────────
-
 def decompose_stock(
     prices: pd.Series,
     period: int = 252,   # annual trading days
     model: str = "additive",
 ) -> object:
-    """STL-style seasonal decomposition using statsmodels."""
+#Doubt: is this STL STYLE OR SOMETHING DIFFERENT?
     prices = prices.dropna()
     result = seasonal_decompose(prices, model=model, period=period, extrapolate_trend="freq")
     return result
 
-
 def trend_strength(decomp_result) -> float:
-    """
-    Measure trend strength as the ratio of trend variance to
-    (trend + residual) variance.  Range 0–1; closer to 1 = strong trend.
-    """
+#This function measures the trend strength as the ratio of trend variance to 
+# (trend + residual) variance. Range 0-1; closer to 1 means strong trend.
     trend   = decomp_result.trend.dropna()
     resid   = decomp_result.resid.dropna()
     aligned = trend.align(resid, join="inner")
@@ -71,7 +59,7 @@ def trend_strength(decomp_result) -> float:
 
 
 def decomposition_summary(data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
-    """Return trend strength for each ticker."""
+#trend strengh for each ticker
     rows = []
     for ticker, df in data.items():
         price = df["Close"].squeeze()
@@ -85,18 +73,12 @@ def decomposition_summary(data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
         rows.append({"Ticker": ticker, "Trend_Strength": ts, "Trend_Direction": direction})
     return pd.DataFrame(rows).set_index("Ticker")
 
-
-# ── Sector momentum ────────────────────────────────────────────────────────────
-
 def sector_momentum(
     data: Dict[str, pd.DataFrame],
     sector_map: Dict[str, str],
     lookback: int = 126,  # ~6 months
 ) -> pd.DataFrame:
-    """
-    Compute 6-month cumulative return per stock and rank by sector.
-    Positive cum-return → momentum sector.
-    """
+#computes 6-month cumulative return per stock and rank by sector.
     rows = []
     for ticker, df in data.items():
         price = df["Close"].squeeze().dropna()
@@ -112,18 +94,12 @@ def sector_momentum(
     df_out = pd.DataFrame(rows).set_index("Ticker").sort_values("6M_CumReturn", ascending=False)
     return df_out
 
-
-# ── Master screening report ────────────────────────────────────────────────────
-
 def screening_report(
     data: Dict[str, pd.DataFrame],
     sector_map: Dict[str, str],
     stock_names: Dict[str, str],
 ) -> pd.DataFrame:
-    """
-    Combines volatility, trend strength, sector momentum into one table.
-    This serves as Task 1 deliverable.
-    """
+
     vol_df  = volatility_summary(data)
     dec_df  = decomposition_summary(data)
     mom_df  = sector_momentum(data, sector_map)

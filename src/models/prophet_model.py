@@ -1,9 +1,3 @@
-"""
-prophet_model.py
-----------------
-Task 3: Facebook Prophet forecasting.
-"""
-
 from __future__ import annotations
 import logging
 import warnings
@@ -24,12 +18,11 @@ FORECASTS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def series_to_prophet_df(series: pd.Series) -> pd.DataFrame:
-    """Convert a DatetimeIndex price Series to Prophet's ds/y format."""
+#this function is for converting a datetime index series to prophet's ds/y format. 
     df = series.reset_index()
     df.columns = ["ds", "y"]
     df["ds"] = pd.to_datetime(df["ds"]).dt.tz_localize(None)
     return df
-
 
 def fit_prophet(
     train: pd.Series,
@@ -38,7 +31,6 @@ def fit_prophet(
     yearly_seasonality: bool = True,
     changepoint_prior_scale: float = 0.05,
 ) -> Prophet:
-    """Fit a Prophet model on the training series."""
     model = Prophet(
         daily_seasonality=daily_seasonality,
         weekly_seasonality=weekly_seasonality,
@@ -50,14 +42,11 @@ def fit_prophet(
     model.fit(train_df)
     return model
 
-
 def predict_test_prophet(model: Prophet, test: pd.Series) -> pd.Series:
-    """Predict on test period dates."""
     future_df = pd.DataFrame({"ds": pd.to_datetime(test.index).tz_localize(None)})
     forecast = model.predict(future_df)
     pred = pd.Series(forecast["yhat"].values, index=test.index, name="Prophet_Pred")
     return pred
-
 
 def forecast_future_prophet(
     model: Prophet,
@@ -83,7 +72,6 @@ def run_prophet_pipeline(
     n_forecast: int = 5,
     save: bool = True,
 ) -> Tuple[Dict[str, pd.Series], Dict[str, np.ndarray], list]:
-    """Run Prophet for all tickers."""
     test_preds: Dict[str, pd.Series] = {}
     future_fc: Dict[str, np.ndarray] = {}
     metrics = []

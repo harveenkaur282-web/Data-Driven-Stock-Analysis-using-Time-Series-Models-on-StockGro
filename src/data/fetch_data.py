@@ -1,4 +1,3 @@
-
 import os
 import logging
 from pathlib import Path
@@ -11,19 +10,14 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(message)s")
 log = logging.getLogger(__name__)
 
 STOCK_UNIVERSE: Dict[str, str] = {
-    # Banking
     "HDFCBANK.NS": "HDFC Bank",
     "ICICIBANK.NS": "ICICI Bank",
-    # IT
     "TCS.NS": "TCS",
     "INFY.NS": "Infosys",
-    # Pharma
     "SUNPHARMA.NS": "Sun Pharma",
     "DRREDDY.NS": "Dr. Reddy's",
-    # FMCG
     "HINDUNILVR.NS": "Hindustan Unilever",
     "ITC.NS": "ITC",
-    # Auto
     "MARUTI.NS": "Maruti Suzuki"
 }
 
@@ -39,13 +33,11 @@ SECTOR_MAP: Dict[str, str] = {
     "MARUTI.NS": "Auto",
     "TATAMOTORS.NS": "Auto",
 }
-
 START_DATE = "2021-01-01"
 END_DATE   = "2025-12-31"
 INTERVAL   = "1d"
 
 RAW_DIR = Path(__file__).resolve().parents[2] / "data" / "raw"
-
 
 def fetch_single(
     ticker: str,
@@ -53,7 +45,6 @@ def fetch_single(
     end: str = END_DATE,
     interval: str = INTERVAL,
 ) -> pd.DataFrame:
-    """Download OHLCV data for one ticker and return a clean DataFrame."""
     log.info(f"Downloading {ticker} …")
     df = yf.download(ticker, start=start, end=end, interval=interval, auto_adjust=True, progress=False)
     if df.empty:
@@ -66,7 +57,6 @@ def fetch_single(
         df.columns = df.columns.get_level_values(0)
     df["Ticker"] = ticker
     return df
-
 
 def fetch_all(
     universe: Dict[str, str] = STOCK_UNIVERSE,
@@ -100,11 +90,9 @@ def load_raw(ticker: str) -> pd.DataFrame:
     df = pd.read_csv(path, index_col="Date", parse_dates=True)
     return df
 
-
 def load_all_raw(universe: Dict[str, str] = STOCK_UNIVERSE) -> Dict[str, pd.DataFrame]:
     """Load all raw CSVs into a dict."""
     return {ticker: load_raw(ticker) for ticker in universe}
-
 
 if __name__ == "__main__":
     data = fetch_all()
