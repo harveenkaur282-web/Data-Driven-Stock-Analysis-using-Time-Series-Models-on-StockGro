@@ -197,7 +197,7 @@ Outputs:
 This repository prepares the data-driven analysis and portfolio recommendation. The final StockGro execution and validation steps were intended to be completed manually:
 
 1. I registered for the event on StockGro and joined the "Portfolio - Time Series Analysis 2026" tracker.
-2. I had to select a two-day execution window from 11 May 2025 through 15 May 2025. And I tested on 13 May 2026 and notes down the profit/loss returns on 14 May 2026. 
+2. I had to select a two-day execution window from 11 May 2025 through 15 May 2025. And I tested on 13 May 2026 and noted down the profit/loss returns on 14 May 2026. 
 3. I  deployedthe ₹10,00,000 virtual capital using portfolio weights from Task 5.
 4. I recorded the actual close prices, portfolio performance, and returns at the end of Day 2.
 5. I compared predicted vs actual prices and returns, including directional accuracy.
